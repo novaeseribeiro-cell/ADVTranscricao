@@ -2,7 +2,7 @@
 <html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'none'">
-<title>Degravador</title>
+<title>ADV Transcrição</title>
 <style>
 /* Layout: mesa de trabalho em duas colunas. A degravação (mídia + falas com minutagem) à esquerda, a leitura jurídica à direita. */
 :root{
@@ -128,7 +128,7 @@ input.path{width:100%;font-family:var(--f-mono);font-size:12px;border:1px solid 
 </style>
 </head><body>
 <header class="top">
-  <div class="brand"><canvas id="logo" width="256" height="256" aria-hidden="true"></canvas><div><h1>Degravador</h1><small>audiência, vídeo, áudio de WhatsApp: tudo vira texto com minutagem</small></div></div>
+  <div class="brand"><canvas id="logo" width="256" height="256" aria-hidden="true"></canvas><div><h1>ADV Transcrição</h1><small>audiência, vídeo, áudio de WhatsApp: tudo vira texto com minutagem</small></div></div>
   <span class="pill" id="engPill"><i></i><span>verificando motor…</span></span>
   <button class="btn" id="btnNew">Nova transcrição</button>
 </header>
@@ -190,7 +190,7 @@ input.path{width:100%;font-family:var(--f-mono);font-size:12px;border:1px solid 
         </div>
         <div class="item">
           <div class="hd"><strong>2. Trazer a resposta de volta</strong></div>
-          <p class="hint">No Claude, copie a resposta inteira e cole aqui. O Degravador aplica os falantes, torna cada minutagem clicável e confere cada citação contra a transcrição.</p>
+          <p class="hint">No Claude, copie a resposta inteira e cole aqui. O ADV Transcrição aplica os falantes, torna cada minutagem clicável e confere cada citação contra a transcrição.</p>
           <textarea id="paste" placeholder="Cole aqui a resposta do Claude"></textarea>
           <div class="row"><button class="btn primary" id="btnApply">Aplicar resposta</button></div>
           <p class="hint" id="applyMsg" aria-live="polite"></p>
@@ -199,13 +199,13 @@ input.path{width:100%;font-family:var(--f-mono);font-size:12px;border:1px solid 
         <div id="anBox"></div>
       </div>
       <div class="pane" id="pane-ex" hidden>
-        <p class="hint">Arquivos prontos para juntar aos autos, colar na peça ou legendar o vídeo. Ficam na pasta Documentos › Degravador › Saidas.</p>
+        <p class="hint">Arquivos prontos para juntar aos autos, colar na peça ou legendar o vídeo. Ficam na pasta Documentos › ADVTranscricao › Saidas.</p>
         <div class="exports">
           <button class="btn" data-ex="doc">Degravação para Word (.doc)<small>tabela tempo · falante · fala, com aviso de conferência</small></button>
           <button class="btn" data-ex="txt">Texto corrido (.txt)<small>uma fala por linha com minutagem</small></button>
           <button class="btn" data-ex="srt">Legenda do vídeo (.srt)<small>abre junto com o vídeo no VLC ou no editor</small></button>
           <button class="btn" data-ex="an">Leitura jurídica (.md)<small>pontos, contradições, citações e trechos marcados</small></button>
-          <button class="btn" data-ex="json">Projeto Degravador (.json)<small>reabre tudo depois, com correções e marcações</small></button>
+          <button class="btn" data-ex="json">Projeto ADV Transcrição (.json)<small>reabre tudo depois, com correções e marcações</small></button>
           <button class="btn" data-ex="copy">Copiar trechos marcados<small>prontos para colar na petição</small></button>
         </div>
         <p class="hint" id="exMsg" aria-live="polite"></p>

@@ -34,7 +34,7 @@ jobs:
         run: git clone --depth 1 --branch "$WHISPER_TAG" https://github.com/ggml-org/whisper.cpp wsrc
 
       # Windows: DLLs com todas as variantes de CPU (roda em processador antigo ou novo),
-      # sem OpenMP e com runtime estático, para não exigir instalar nada além do Degravador.
+      # sem OpenMP e com runtime estático, para não exigir instalar nada além do ADV Transcrição.
       - name: Compilar whisper-cli (Windows)
         if: runner.os == 'Windows'
         shell: bash
@@ -100,8 +100,8 @@ jobs:
           body: |
             ## Como instalar
 
-            **Windows:** baixe o arquivo `Degravador-Windows-Setup` (.exe) e abra. Se aparecer "O Windows protegeu o computador", clique em **Mais informações** e depois em **Executar assim mesmo**.
+            **Windows:** baixe o arquivo `ADVTranscricao-Windows-Setup` (.exe) e abra. Se aparecer "O Windows protegeu o computador", clique em **Mais informações** e depois em **Executar assim mesmo**.
 
-            **Mac com chip Apple (M1 a M4):** baixe o `Degravador-Mac-arm64` (.dmg) e arraste o Degravador para Aplicativos. Na primeira vez, se o Mac disser que não pode verificar o desenvolvedor, vá em Ajustes do Sistema › Privacidade e Segurança e clique em **Abrir mesmo assim**.
+            **Mac com chip Apple (M1 a M4):** baixe o `ADVTranscricao-Mac-arm64` (.dmg) e arraste o ADV Transcrição para Aplicativos. Na primeira vez, se o Mac disser que não pode verificar o desenvolvedor, vá em Ajustes do Sistema › Privacidade e Segurança e clique em **Abrir mesmo assim**.
 
             Na primeira abertura, vá na aba **Motor** e baixe o modelo de voz (uma vez só).

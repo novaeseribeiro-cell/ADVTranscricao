@@ -1,11 +1,11 @@
 {
-  "name": "degravador",
-  "productName": "Degravador",
+  "name": "advtranscricao",
+  "productName": "ADVTranscricao",
   "version": "1.0.0",
   "description": "Transcreve audiências, vídeos e áudios de WhatsApp no próprio computador, com minutagem.",
   "main": "main.js",
   "license": "MIT",
-  "author": "Degravador",
+  "author": "ADV Transcrição",
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder --publish never"
@@ -18,9 +18,9 @@
     "electron-builder": "25.1.8"
   },
   "build": {
-    "appId": "app.degravador.desktop",
-    "productName": "Degravador",
-    "copyright": "Degravador",
+    "appId": "app.advtranscricao.desktop",
+    "productName": "ADVTranscricao",
+    "copyright": "ADV Transcrição",
     "directories": { "output": "dist", "buildResources": "build" },
     "files": ["main.js", "preload.js", "renderer/**", "package.json"],
     "asarUnpack": ["node_modules/ffmpeg-static/**"],
@@ -38,15 +38,15 @@
       "perMachine": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
-      "shortcutName": "Degravador",
-      "artifactName": "Degravador-Windows-Setup-${version}.${ext}"
+      "shortcutName": "ADV Transcrição",
+      "artifactName": "ADVTranscricao-Windows-Setup-${version}.${ext}"
     },
     "mac": {
       "target": [{ "target": "dmg", "arch": ["arm64"] }],
       "icon": "build/icon.png",
       "category": "public.app-category.productivity",
       "identity": null,
-      "artifactName": "Degravador-Mac-${arch}-${version}.${ext}"
+      "artifactName": "ADVTranscricao-Mac-${arch}-${version}.${ext}"
     }
   }
 }

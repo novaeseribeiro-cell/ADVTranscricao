@@ -134,10 +134,10 @@ async function detect() {
 function renderEngine() {
   const box = $("#engBox"); box.replaceChildren();
   box.append(el("h3", { text: "Motor de transcrição" }));
-  if (!INFO) { box.append(el("p", { text: "Não consegui verificar o motor. Feche e abra o Degravador de novo." })); return; }
+  if (!INFO) { box.append(el("p", { text: "Não consegui verificar o motor. Feche e abra o ADV Transcrição de novo." })); return; }
   const line = (label, ok, val) => box.append(el("div", { class: "r" }, [el("span", {}, [el("span", { class: "tag " + (ok ? "ok" : "no"), text: ok ? "ok" : "falta" }), " " + label]), el("code", { text: val || "" })]));
-  line("Transcritor (whisper.cpp)", !!INFO.whisper, INFO.whisper ? "incluído no app" : "não encontrado: reinstale o Degravador");
-  line("Conversor de mídia (ffmpeg)", !!INFO.ffmpeg, INFO.ffmpeg ? "incluído no app" : "não encontrado: reinstale o Degravador");
+  line("Transcritor (whisper.cpp)", !!INFO.whisper, INFO.whisper ? "incluído no app" : "não encontrado: reinstale o ADV Transcrição");
+  line("Conversor de mídia (ffmpeg)", !!INFO.ffmpeg, INFO.ffmpeg ? "incluído no app" : "não encontrado: reinstale o ADV Transcrição");
   box.append(el("h3", { text: "Modelo de voz" }));
   box.append(el("p", { class: "hint", text: "Baixado uma única vez, direto para o seu computador. O Preciso erra menos; o Rápido serve para computador mais simples ou áudio curto." }));
   for (const [k, m] of Object.entries(INFO.models)) {
@@ -147,7 +147,7 @@ function renderEngine() {
     const right = m.ok ? el("span", { class: "tag ok", text: "baixado" }) : el("button", { class: "btn sm primary", text: "Baixar", onclick: () => downloadModel(k) });
     box.append(el("div", { class: "r" }, [el("span", {}, [radio, lab]), right]));
   }
-  box.append(el("div", { class: "row" }, [el("button", { class: "btn", text: "Verificar de novo", onclick: detect }), el("button", { class: "btn ghost", text: "Abrir pasta do Degravador", onclick: () => dg.openBase() })]));
+  box.append(el("div", { class: "row" }, [el("button", { class: "btn", text: "Verificar de novo", onclick: detect }), el("button", { class: "btn ghost", text: "Abrir pasta do ADV Transcrição", onclick: () => dg.openBase() })]));
   box.append(el("p", { class: "fmt", text: `versão ${INFO.version} · ${INFO.platform}` }));
 }
 
@@ -372,7 +372,7 @@ const builders = {
   txt: () => [baseName() + ".txt", S.segs.map(s => `[${fmt(s.a)}] ${s.f ? s.f + ": " : ""}${s.t}`).join("\r\n")],
   srt: () => [baseName() + ".srt", S.segs.map((s, i) => `${i + 1}\n${fmtSrt(s.a)} --> ${fmtSrt(s.b)}\n${s.f ? s.f + ": " : ""}${s.t}\n`).join("\n")],
   an: () => ["Leitura jurídica - " + baseName() + ".md", buildMd()],
-  json: () => [baseName() + ".degravador.json", JSON.stringify(project(), null, 2)]
+  json: () => [baseName() + ".advtranscricao.json", JSON.stringify(project(), null, 2)]
 };
 $$("[data-ex]").forEach(b => b.onclick = async () => {
   const msg = $("#exMsg"); if (!S.segs.length) { msg.textContent = "Ainda não há degravação para exportar."; return; }

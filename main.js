@@ -15,7 +15,7 @@ const MODELS = {
 };
 const MODEL_BASE = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/";
 
-const baseDir = () => path.join(app.getPath("documents"), "Degravador");
+const baseDir = () => path.join(app.getPath("documents"), "ADVTranscricao");
 const binDir = () => (app.isPackaged ? path.join(process.resourcesPath, "bin") : path.join(__dirname, "bin"));
 const whisperPath = () => path.join(binDir(), IS_WIN ? "whisper-cli.exe" : "whisper-cli");
 function ffmpegPath() {
@@ -26,7 +26,7 @@ let win;
 function createWindow() {
   win = new BrowserWindow({
     width: 1280, height: 860, minWidth: 760, minHeight: 560,
-    title: "Degravador", backgroundColor: "#F3F4F2",
+    title: "ADV Transcrição", backgroundColor: "#F3F4F2",
     icon: path.join(__dirname, "build", "icon.png"),
     webPreferences: { preload: path.join(__dirname, "preload.js"), contextIsolation: true, nodeIntegration: false, sandbox: false }
   });
@@ -66,7 +66,7 @@ ipcMain.handle("download-model", async (e, key) => {
   try {
     await new Promise((resolve, reject) => {
       const get = (url, hops = 0) => {
-        const req = https.get(url, { headers: { "User-Agent": "Degravador" } }, (res) => {
+        const req = https.get(url, { headers: { "User-Agent": "ADVTranscricao" } }, (res) => {
           if ([301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location && hops < 8) { res.resume(); return get(new URL(res.headers.location, url).toString(), hops + 1); }
           if (res.statusCode !== 200) { res.resume(); return reject(new Error("servidor respondeu " + res.statusCode)); }
           const total = +res.headers["content-length"] || m.approxMB * 1e6; let got = 0, last = 0;
@@ -114,8 +114,8 @@ ipcMain.handle("pick-file", async () => {
   return r.canceled ? null : r.filePaths[0];
 });
 ipcMain.handle("new-workdir", async () => { const d = path.join(baseDir(), "tmp", Date.now().toString(36)); await fsp.mkdir(d, { recursive: true }); return d; });
-ipcMain.handle("read-bytes", async (e, p) => { if (!inBase(p)) throw new Error("caminho fora da pasta do Degravador"); return new Uint8Array(await fsp.readFile(p)); });
-ipcMain.handle("read-text", async (e, p) => { if (!inBase(p)) throw new Error("caminho fora da pasta do Degravador"); return fsp.readFile(p, "utf8"); });
+ipcMain.handle("read-bytes", async (e, p) => { if (!inBase(p)) throw new Error("caminho fora da pasta do ADV Transcrição"); return new Uint8Array(await fsp.readFile(p)); });
+ipcMain.handle("read-text", async (e, p) => { if (!inBase(p)) throw new Error("caminho fora da pasta do ADV Transcrição"); return fsp.readFile(p, "utf8"); });
 ipcMain.handle("save-output", async (e, folderName, fileName, data) => {
   const safe = (s) => String(s).replace(/[\\/:*?"<>|]+/g, "_").slice(0, 100);
   const dir = path.join(baseDir(), "Saidas", safe(folderName)); await fsp.mkdir(dir, { recursive: true });
@@ -124,5 +124,5 @@ ipcMain.handle("save-output", async (e, folderName, fileName, data) => {
 ipcMain.handle("open-base", () => shell.openPath(baseDir()));
 ipcMain.handle("open-external", (e, url) => { if (/^https:\/\//.test(url)) shell.openExternal(url); });
 ipcMain.handle("copy", (e, text) => { clipboard.writeText(String(text)); return true; });
-ipcMain.handle("notify", (e, body) => { if (Notification.isSupported()) new Notification({ title: "Degravador", body: String(body).slice(0, 200) }).show(); });
-ipcMain.handle("clean-workdir", async (e, d) => { if (inBase(d) && d.includes(path.join("Degravador", "tmp"))) await fsp.rm(d, { recursive: true, force: true }).catch(() => {}); });
+ipcMain.handle("notify", (e, body) => { if (Notification.isSupported()) new Notification({ title: "ADV Transcrição", body: String(body).slice(0, 200) }).show(); });
+ipcMain.handle("clean-workdir", async (e, d) => { if (inBase(d) && d.includes(path.join("ADVTranscricao", "tmp"))) await fsp.rm(d, { recursive: true, force: true }).catch(() => {}); });

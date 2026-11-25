@@ -1,4 +1,4 @@
-Componentes de terceiros incluídos no Degravador
+Componentes de terceiros incluídos no ADV Transcrição
 
 - whisper.cpp (https://github.com/ggml-org/whisper.cpp), licença MIT. Ver whisper.cpp-MIT.txt.
 - Modelos de voz Whisper (OpenAI), licença MIT, baixados de https://huggingface.co/ggerganov/whisper.cpp na primeira execução.
