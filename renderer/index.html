@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'none'">
+<title>Degravador</title>
+<style>
+/* Layout: mesa de trabalho em duas colunas. A degravação (mídia + falas com minutagem) à esquerda, a leitura jurídica à direita. */
+:root{
+  --bg:#F3F4F2; --panel:#FFFFFF; --ink:#151A1E; --muted:#5B6670; --line:#DCE0DD;
+  --accent:#0F6B5C; --accent-ink:#FFFFFF; --accent-soft:#E2F0EC;
+  --mark:#F6D96B; --mark-soft:#FBF1C7; --warn:#A3470E; --warn-soft:#FBE9DC; --ok:#1E7A3C; --ok-soft:#E1F2E6;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-head:"IBM Plex Sans Condensed","IBM Plex Sans",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --r:8px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111416; --panel:#191D20; --ink:#E7ECEA; --muted:#97A3A0; --line:#2B3236;
+  --accent:#3FB69C; --accent-ink:#06201A; --accent-soft:#16302A;
+  --mark:#C9A93A; --mark-soft:#3A3318; --warn:#F0A36E; --warn-soft:#3A2416; --ok:#6CCB8A; --ok-soft:#173222; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111416; --panel:#191D20; --ink:#E7ECEA; --muted:#97A3A0; --line:#2B3236;
+  --accent:#3FB69C; --accent-ink:#06201A; --accent-soft:#16302A;
+  --mark:#C9A93A; --mark-soft:#3A3318; --warn:#F0A36E; --warn-soft:#3A2416; --ok:#6CCB8A; --ok-soft:#173222; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 32px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding-block:14px 12px;border-bottom:1px solid var(--line);app-region:drag}
+.top *{app-region:no-drag}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto}
+.brand canvas{width:30px;height:30px;border-radius:7px}
+.brand h1{font-family:var(--f-head);font-size:22px;letter-spacing:.01em;margin:0;line-height:1}
+.brand small{display:block;color:var(--muted);font-size:12px;letter-spacing:.02em}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:500;background:var(--panel);border:1px solid var(--line)}
+.pill i{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.pill.ok i{background:var(--ok)} .pill.warn i{background:var(--warn)} .pill.run i{background:var(--accent);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.3}}
+@media (prefers-reduced-motion:reduce){.pill.run i{animation:none}}
+.btn{border:1px solid var(--line);background:var(--panel);padding:7px 12px;border-radius:var(--r);font-weight:500;display:inline-flex;gap:6px;align-items:center}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.sm{padding:4px 9px;font-size:12.5px}
+.grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:18px;margin-top:16px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r)}
+.banner{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:10px 14px;border-radius:var(--r);margin-top:14px;font-size:13.5px}
+.banner.ex{background:var(--mark-soft);border:1px solid var(--mark)}
+.banner.info{background:var(--accent-soft);border:1px solid var(--accent)}
+.banner.err{background:var(--warn-soft);border:1px solid var(--warn)}
+.banner p{margin:0;flex:1 1 260px;min-width:0}
+.drop{padding:18px;display:grid;gap:12px}
+.drop .zone{border:1.5px dashed var(--line);border-radius:var(--r);padding:18px;text-align:center;color:var(--muted)}
+.drop .zone.over{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+.drop .zone strong{color:var(--ink);display:block;font-size:15px;margin-bottom:4px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.fmt{font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
+.job{padding:14px 18px;border-top:1px solid var(--line);display:grid;gap:8px}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.bar b{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.log{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);white-space:pre-wrap;max-height:130px;overflow:auto;background:var(--bg);border-radius:6px;padding:8px}
+.media{padding:12px 18px;border-top:1px solid var(--line);display:grid;gap:8px}
+.media audio{width:100%}
+.meta{display:flex;flex-wrap:wrap;gap:4px 16px;color:var(--muted);font-size:12.5px}
+.meta b{color:var(--ink);font-weight:500}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 18px;border-top:1px solid var(--line);position:sticky;top:calc(env(safe-area-inset-top,0px) + 60px);background:var(--panel);z-index:3}
+.tools input[type=search]{flex:1 1 180px;min-width:0;border:1px solid var(--line);border-radius:6px;padding:6px 10px;background:var(--bg)}
+.tools label{font-size:12.5px;color:var(--muted);display:flex;gap:5px;align-items:center}
+.segs{padding:4px 0 10px}
+.seg{display:grid;grid-template-columns:72px minmax(0,1fr) 28px;gap:4px 10px;padding:7px 18px;border-left:3px solid transparent}
+.seg.now{background:var(--accent-soft);border-left-color:var(--accent)}
+.seg.star{border-left-color:var(--mark)}
+.seg.hit .tx{background:linear-gradient(transparent 60%,var(--mark-soft) 60%)}
+.ts{font-family:var(--f-mono);font-size:12px;color:var(--accent);background:none;border:0;padding:2px 0;text-align:left;font-variant-numeric:tabular-nums;align-self:start}
+.ts:hover{text-decoration:underline}
+.body{min-width:0}
+.who{font-family:var(--f-head);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border:0;background:none;padding:0;margin-bottom:1px;color:var(--muted)}
+.who:hover{text-decoration:underline}
+.tx{margin:0;outline:none;border-radius:4px;overflow-wrap:anywhere}
+.tx:focus{background:var(--bg);box-shadow:0 0 0 1px var(--line)}
+.st{border:0;background:none;color:var(--muted);font-size:16px;line-height:1;align-self:start;padding:2px}
+.seg.star .st{color:var(--warn)}
+mark{background:var(--mark);color:inherit;border-radius:2px}
+.empty{padding:28px 18px;color:var(--muted);text-align:center}
+.side{display:grid;gap:14px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 74px)}
+@media (max-width:900px){.side{position:static}}
+.tabs{display:flex;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{border:0;background:none;padding:11px 14px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--accent)}
+.pane{padding:16px 18px;display:grid;gap:12px;max-height:calc(100vh - 170px);overflow:auto}
+@media (max-width:900px){.pane{max-height:none}}
+.pane h3{font-family:var(--f-head);font-size:15px;letter-spacing:.02em;margin:4px 0 0;text-transform:uppercase}
+.pane p{margin:0}
+.hint{color:var(--muted);font-size:12.5px}
+.spk{display:grid;gap:6px}
+.spk div{display:flex;gap:8px;align-items:center;font-size:13px}
+.spk i{width:10px;height:10px;border-radius:3px;flex:none}
+.item{border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;display:grid;gap:6px}
+.item .hd{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.item .hd strong{font-weight:600}
+.q{margin:0;padding-left:10px;border-left:3px solid var(--line);color:var(--ink);font-size:13.5px}
+.tag{font-size:11px;padding:1px 7px;border-radius:999px;font-weight:500;white-space:nowrap}
+.tag.ok{background:var(--ok-soft);color:var(--ok)} .tag.no{background:var(--warn-soft);color:var(--warn)}
+.chat{display:grid;gap:10px}
+.msg{padding:9px 12px;border-radius:var(--r);white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.u{background:var(--accent-soft);justify-self:end;max-width:90%}
+.msg.a{background:var(--bg);border:1px solid var(--line)}
+.msg a{color:var(--accent);font-family:var(--f-mono);font-size:12.5px;cursor:pointer}
+textarea{width:100%;border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--bg);resize:vertical;min-height:64px}
+.sugs{display:flex;flex-wrap:wrap;gap:6px}
+.exports{display:grid;gap:8px}
+.exports button{justify-content:space-between;text-align:left}
+.exports small{color:var(--muted);font-weight:400}
+.eng{display:grid;gap:8px}
+.eng .r{display:flex;justify-content:space-between;gap:10px;align-items:center;border-bottom:1px dashed var(--line);padding-bottom:6px;font-size:13px}
+.eng code{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);overflow-wrap:anywhere}
+input.path{width:100%;font-family:var(--f-mono);font-size:12px;border:1px solid var(--line);border-radius:6px;padding:6px 8px;background:var(--bg)}
+.foot{margin-top:18px;color:var(--muted);font-size:12px}
+.rename{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:10px 18px;border-top:1px solid var(--line);background:var(--accent-soft)}
+.rename input{flex:1 1 160px;min-width:0;border:1px solid var(--line);border-radius:6px;padding:5px 8px;background:var(--panel)}
+</style>
+</head><body>
+<header class="top">
+  <div class="brand"><canvas id="logo" width="256" height="256" aria-hidden="true"></canvas><div><h1>Degravador</h1><small>audiência, vídeo, áudio de WhatsApp: tudo vira texto com minutagem</small></div></div>
+  <span class="pill" id="engPill"><i></i><span>verificando motor…</span></span>
+  <button class="btn" id="btnNew">Nova transcrição</button>
+</header>
+
+<div id="banners"></div>
+
+<main class="grid">
+  <section class="card" aria-label="Degravação">
+    <div class="drop" id="dropBox">
+      <div class="zone" id="zone">
+        <strong>Solte aqui a gravação</strong>
+        Audiência do PJe, vídeo de reunião, áudio do WhatsApp, ligação gravada
+        <div class="fmt">mp3 · mp4 · m4a · ogg · opus · wav · mov · webm · mkv · aac · flac · amr</div>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="btnPick">Escolher arquivo</button>
+        <button class="btn ghost" id="btnImport">Importar transcrição pronta</button>
+        <input type="file" id="importIn" hidden accept=".srt,.vtt,.txt,.json">
+      </div>
+    </div>
+    <div class="job" id="job" hidden>
+      <div class="row" style="justify-content:space-between"><strong id="jobTitle">Preparando…</strong><button class="btn sm" id="btnCancel">Cancelar</button></div>
+      <div class="bar"><b id="jobBar"></b></div>
+      <div class="hint" id="jobHint"></div>
+      <div class="log" id="jobLog" hidden></div>
+    </div>
+    <div class="media" id="media">
+      <div class="meta" id="meta"></div>
+      <audio id="player" controls preload="metadata" hidden></audio>
+    </div>
+    <div class="rename" id="renameBox" hidden>
+      <span>Renomear <b id="renameFrom"></b> em todas as falas para</span>
+      <input id="renameTo" list="spkList"><datalist id="spkList"></datalist>
+      <button class="btn sm primary" id="renameOk">Aplicar</button><button class="btn sm ghost" id="renameNo">Fechar</button>
+    </div>
+    <div class="tools">
+      <input type="search" id="find" placeholder="Buscar na degravação (ex.: hora extra, assinou, câmera)">
+      <span class="fmt" id="findCount"></span>
+      <label><input type="checkbox" id="follow" checked> acompanhar áudio</label>
+      <label><input type="checkbox" id="onlyStar"> só marcados</label>
+    </div>
+    <div class="segs" id="segs"></div>
+  </section>
+
+  <aside class="side">
+    <div class="card">
+      <div class="tabs" role="tablist">
+        <button role="tab" aria-selected="true" data-tab="an">Leitura jurídica</button>
+        <button role="tab" aria-selected="false" data-tab="ex">Exportar</button>
+        <button role="tab" aria-selected="false" data-tab="mo">Motor</button>
+      </div>
+      <div class="pane" id="pane-an">
+        <p class="hint">O Claude identifica quem fala e aponta pontos-chave, contradições e citações com a minutagem. São dois passos, usando o seu próprio Claude:</p>
+        <div class="item">
+          <div class="hd"><strong>1. Mandar para o Claude</strong></div>
+          <p class="hint">Copia a degravação com as instruções prontas e abre o Claude. Lá, é só colar (Ctrl+V ou Cmd+V) e enviar.</p>
+          <div class="row"><button class="btn primary" id="btnCopyClaude">Copiar e abrir o Claude</button></div>
+          <p class="hint" id="copyMsg" aria-live="polite"></p>
+        </div>
+        <div class="item">
+          <div class="hd"><strong>2. Trazer a resposta de volta</strong></div>
+          <p class="hint">No Claude, copie a resposta inteira e cole aqui. O Degravador aplica os falantes, torna cada minutagem clicável e confere cada citação contra a transcrição.</p>
+          <textarea id="paste" placeholder="Cole aqui a resposta do Claude"></textarea>
+          <div class="row"><button class="btn primary" id="btnApply">Aplicar resposta</button></div>
+          <p class="hint" id="applyMsg" aria-live="polite"></p>
+        </div>
+        <div id="spkBox"></div>
+        <div id="anBox"></div>
+      </div>
+      <div class="pane" id="pane-ex" hidden>
+        <p class="hint">Arquivos prontos para juntar aos autos, colar na peça ou legendar o vídeo. Ficam na pasta Documentos › Degravador › Saidas.</p>
+        <div class="exports">
+          <button class="btn" data-ex="doc">Degravação para Word (.doc)<small>tabela tempo · falante · fala, com aviso de conferência</small></button>
+          <button class="btn" data-ex="txt">Texto corrido (.txt)<small>uma fala por linha com minutagem</small></button>
+          <button class="btn" data-ex="srt">Legenda do vídeo (.srt)<small>abre junto com o vídeo no VLC ou no editor</small></button>
+          <button class="btn" data-ex="an">Leitura jurídica (.md)<small>pontos, contradições, citações e trechos marcados</small></button>
+          <button class="btn" data-ex="json">Projeto Degravador (.json)<small>reabre tudo depois, com correções e marcações</small></button>
+          <button class="btn" data-ex="copy">Copiar trechos marcados<small>prontos para colar na petição</small></button>
+        </div>
+        <p class="hint" id="exMsg" aria-live="polite"></p>
+      </div>
+      <div class="pane" id="pane-mo" hidden>
+        <div id="engBox" class="eng"></div>
+      </div>
+    </div>
+  </aside>
+</main>
+<p class="foot">Transcrição automática, feita no seu computador. A gravação não sai da máquina. Confira sempre com a mídia original antes de juntar aos autos.</p>
+
+<script src="app.js"></script>
+</body></html>
