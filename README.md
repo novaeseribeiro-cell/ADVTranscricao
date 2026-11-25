@@ -15,7 +15,7 @@ Na primeira abertura, vá na aba **Motor** e baixe o modelo de voz (uma vez só)
 
 ## Como gerar uma nova versão
 
-Altere `version` no `package.json`, faça commit e crie uma tag `vX.Y.Z`. O GitHub Actions compila o whisper.cpp, monta os instaladores e publica no Releases.
+Altere `version` no `package.json`, faça commit e rode o workflow **Gerar instaladores** (aba Actions › Run workflow). Ele compila o whisper.cpp, monta os instaladores e publica a versão no Releases.
 
 ## Componentes
 
