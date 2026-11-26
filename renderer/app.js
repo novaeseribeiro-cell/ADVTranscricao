@@ -106,7 +106,7 @@ function highlight(id, scroll) { $(".seg.now")?.classList.remove("now"); const r
 player.addEventListener("timeupdate", () => { if (!S.segs.length) return; const s = nearest(player.currentTime * 1000); if (s && s.id !== lastNow) highlight(s.id, false); });
 
 /* ---------- abas ---------- */
-$$(".tabs button").forEach(b => b.onclick = () => { $$(".tabs button").forEach(x => x.setAttribute("aria-selected", x === b)); ["an", "ex", "mo"].forEach(t => $("#pane-" + t).hidden = t !== b.dataset.tab); });
+$$(".tabs button").forEach(b => b.onclick = () => { $$(".tabs button").forEach(x => x.setAttribute("aria-selected", x === b)); ["an", "ex", "mo", "so"].forEach(t => $("#pane-" + t).hidden = t !== b.dataset.tab); });
 const goTab = t => $(`.tabs button[data-tab="${t}"]`).click();
 
 /* ---------- ícone ---------- */
@@ -281,6 +281,32 @@ async function importFile(f) {
 $("#btnNew").onclick = () => { Object.assign(S, { segs: [], name: "", example: false, analysis: null }); setMedia(null); clearBanners(); renderAll(); };
 
 /* ============================================================
+   DIVULGAÇÃO (TribuJus e NR). Os endereços ficam só aqui.
+   Sem endereço preenchido, o botão não aparece.
+   ============================================================ */
+const PROMO = {
+  tribujus: {
+    nome: "TribuJus", kick: "Jurisprudência com link oficial",
+    texto: "Pesquisa de jurisprudência, súmulas e teses de tribunais brasileiros, com link oficial para conferir cada julgado. Conecta direto no Claude: você pede a pesquisa e ele traz o precedente verificado, sem citação inventada.",
+    url: "", botao: "Conhecer o TribuJus"
+  },
+  nr: {
+    nome: "ADVNR", kick: "Sistema jurídico NR",
+    texto: "O sistema do escritório integrado ao Claude: processos, autos, minutas e prazos no mesmo lugar, com a IA trabalhando dentro do seu fluxo.",
+    url: "", botao: "Conhecer o ADVNR"
+  }
+};
+function renderPromo() {
+  const box = $("#promoBox"); if (!box) return; box.replaceChildren();
+  for (const p of Object.values(PROMO)) box.append(el("div", { class: "promo" }, [
+    el("span", { class: "kick", text: p.kick }), el("strong", { text: p.nome }), el("p", { class: "hint", text: p.texto }),
+    p.url ? el("div", { class: "row" }, [el("button", { class: "btn primary sm", text: p.botao, onclick: () => dg.openExternal(p.url) })]) : null
+  ]));
+  const f = $("#footPromo"); if (f) { f.replaceChildren(document.createTextNode("Gratuito, oferecido por ")); const ps = Object.values(PROMO); ps.forEach((p, i) => { f.append(el("a", { text: p.nome, onclick: () => p.url ? dg.openExternal(p.url) : goTab("so") })); f.append(document.createTextNode(i < ps.length - 2 ? ", " : i === ps.length - 2 ? " e " : ".")); }); }
+}
+renderPromo();
+
+/* ============================================================
    LEITURA JURÍDICA: ida e volta com o Claude do usuário
    ============================================================ */
 const linesFor = segs => segs.map(s => `#${s.id} [${fmt(s.a)}]${s.f ? " " + s.f + ":" : ""} ${s.t}`).join("\n");
@@ -340,6 +366,8 @@ function renderAnalysis() {
   if (A.citacoes?.length) { box.append(el("h3", { text: "Citações prontas para a peça" })); A.citacoes.forEach(c => { const q = (c.texto || "").match(/["“](.+?)["”]/); box.append(el("div", { class: "item" }, [el("div", { class: "hd" }, [tsLink(c.t), q ? chk(q[1]) : null, el("button", { class: "btn sm", text: "copiar", onclick: async ev => { await dg.copy(c.texto); ev.target.textContent = "copiado"; } })]), el("p", { text: c.texto || "" })])); }); }
   if (A.lacunas?.length) { box.append(el("h3", { text: "O que ficou em aberto" })); const ul = el("ul"); A.lacunas.forEach(x => ul.append(el("li", { text: x }))); box.append(ul); }
   box.append(el("p", { class: "hint", text: "Leitura feita pelo Claude sobre a transcrição automática. Confira cada trecho ouvindo a mídia antes de usar na peça." }));
+  const T = PROMO.tribujus;
+  box.append(el("div", { class: "promo inline" }, [el("span", { class: "kick", text: "Próximo passo: fundamentar a peça" }), el("p", { text: "Esta leitura não traz jurisprudência de propósito. Para fundamentar, pesquise no " + T.nome + ": cada julgado vem com link oficial para conferir." }), el("div", { class: "row" }, [el("button", { class: "btn sm", text: T.url ? T.botao : "Saiba mais", onclick: () => T.url ? dg.openExternal(T.url) : goTab("so") })])]));
 }
 
 /* ============================================================
@@ -365,7 +393,8 @@ function buildMd() {
   if (A.citacoes?.length) { L.push("## Citações para a peça"); A.citacoes.forEach(c => L.push(c.texto, "")); }
   const star = S.segs.filter(s => s.star); if (star.length) { L.push("## Trechos marcados"); star.forEach(s => L.push(`- [${fmt(s.a)}] ${s.f ? s.f + ": " : ""}"${s.t}"`)); L.push(""); }
   if (A.lacunas?.length) { L.push("## Em aberto"); A.lacunas.forEach(l => L.push("- " + l)); }
-  L.push("", "Leitura gerada sobre transcrição automática. Conferir com a mídia."); return L.join("\n");
+  L.push("", "Leitura gerada sobre transcrição automática. Conferir com a mídia.");
+  L.push("", "---", `Transcrito com o ADV Transcrição (gratuito). Para fundamentar a peça com jurisprudência verificada e link oficial: ${PROMO.tribujus.nome}${PROMO.tribujus.url ? " (" + PROMO.tribujus.url + ")" : ""}. Sistema jurídico integrado ao Claude: ${PROMO.nr.nome}${PROMO.nr.url ? " (" + PROMO.nr.url + ")" : ""}.`); return L.join("\n");
 }
 const builders = {
   doc: () => ["Degravação - " + baseName() + ".doc", buildDoc()],

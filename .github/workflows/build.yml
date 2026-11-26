@@ -113,3 +113,7 @@ jobs:
             **Mac com chip Apple (M1 a M4):** baixe o `ADVTranscricao-Mac-arm64` (.dmg) e arraste o ADV Transcrição para Aplicativos. Na primeira vez, se o Mac disser que não pode verificar o desenvolvedor, vá em Ajustes do Sistema › Privacidade e Segurança e clique em **Abrir mesmo assim**.
 
             Na primeira abertura, vá na aba **Motor** e baixe o modelo de voz (uma vez só).
+
+            ---
+
+            O ADV Transcrição é gratuito e oferecido por **TribuJus** (jurisprudência com link oficial, conectada ao Claude) e **ADVNR** (sistema jurídico integrado ao Claude). Veja a aba **Conheça** dentro do app.

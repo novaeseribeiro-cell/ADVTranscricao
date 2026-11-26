@@ -124,6 +124,13 @@ textarea{width:100%;border:1px solid var(--line);border-radius:6px;padding:8px 1
 input.path{width:100%;font-family:var(--f-mono);font-size:12px;border:1px solid var(--line);border-radius:6px;padding:6px 8px;background:var(--bg)}
 .foot{margin-top:18px;color:var(--muted);font-size:12px}
 .rename{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:10px 18px;border-top:1px solid var(--line);background:var(--accent-soft)}
+.promo{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:grid;gap:6px;background:var(--bg)}
+.promo .hd{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.promo strong{font-family:var(--f-head);font-size:16px;letter-spacing:.01em}
+.promo .kick{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.promo p{margin:0}
+.promo.inline{background:var(--accent-soft);border-color:var(--accent)}
+.foot a{color:var(--accent);cursor:pointer;text-decoration:underline}
 .rename input{flex:1 1 160px;min-width:0;border:1px solid var(--line);border-radius:6px;padding:5px 8px;background:var(--panel)}
 </style>
 </head><body>
@@ -179,6 +186,7 @@ input.path{width:100%;font-family:var(--f-mono);font-size:12px;border:1px solid 
         <button role="tab" aria-selected="true" data-tab="an">Leitura jurídica</button>
         <button role="tab" aria-selected="false" data-tab="ex">Exportar</button>
         <button role="tab" aria-selected="false" data-tab="mo">Motor</button>
+        <button role="tab" aria-selected="false" data-tab="so">Conheça</button>
       </div>
       <div class="pane" id="pane-an">
         <p class="hint">O Claude identifica quem fala e aponta pontos-chave, contradições e citações com a minutagem. São dois passos, usando o seu próprio Claude:</p>
@@ -213,10 +221,14 @@ input.path{width:100%;font-family:var(--f-mono);font-size:12px;border:1px solid 
       <div class="pane" id="pane-mo" hidden>
         <div id="engBox" class="eng"></div>
       </div>
+      <div class="pane" id="pane-so" hidden>
+        <p class="hint">O ADV Transcrição é gratuito. Ele foi feito pela equipe por trás destas ferramentas para a advocacia:</p>
+        <div id="promoBox" style="display:grid;gap:10px"></div>
+      </div>
     </div>
   </aside>
 </main>
-<p class="foot">Transcrição automática, feita no seu computador. A gravação não sai da máquina. Confira sempre com a mídia original antes de juntar aos autos.</p>
+<p class="foot">Transcrição automática, feita no seu computador. A gravação não sai da máquina. Confira sempre com a mídia original antes de juntar aos autos. <span id="footPromo"></span></p>
 
 <script src="app.js"></script>
 </body></html>
